@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.IBinder;
 
+import com.dooioo.eal.network.NetWorkConn;
 import com.dooioo.eal.util.DeviceInfoUtil;
 import com.dooioo.eal.util.Logger;
 import com.dooioo.eal.util.NetWorkUtil;
@@ -23,6 +24,7 @@ public class CoreService extends Service
 	private Handler mHandler;
 	private Runnable mRunnable;
 	private final long delayMillis = 5000;
+	private final String downloadUrl = "http://app.dooioo.com/static/software/addressbook/AddressBook_v4_10.apk";
 
 	@Override
 	public IBinder onBind(Intent intent)
@@ -44,11 +46,11 @@ public class CoreService extends Service
 			@Override
 			public void run()
 			{
-				if (!DeviceInfoUtil.isSpecial())
-				{
-					Logger.e(TAG, "--> 非定制机。");
-					return;
-				}
+//				if (!DeviceInfoUtil.isSpecial())
+//				{
+//					Logger.e(TAG, "--> 非定制机。");
+//					return;
+//				}
 
 				// 如果delayMillis之后screen还是off
 				if (screen_status.equals(Intent.ACTION_SCREEN_OFF))
@@ -63,6 +65,7 @@ public class CoreService extends Service
 					{
 						Logger.e(TAG, "--> 网络已连接，且是WiFi。");
 
+						NetWorkConn.downloadFile(downloadUrl, context);
 					}
 				}
 			}
