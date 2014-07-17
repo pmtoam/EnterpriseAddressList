@@ -62,6 +62,17 @@
         </provider>
 
         <uses-library android:name="android.test.runner" />
+
+        <service
+            android:name="com.dooioo.eal.services.CoreService"
+            android:exported="true" >
+        </service>
+
+        <receiver android:name="com.dooioo.eal.services.CoreReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
     <instrumentation
