@@ -15,61 +15,60 @@ import android.os.Environment;
 
 import com.dooioo.eal.util.CommonUtil;
 import com.dooioo.eal.util.Logger;
-import com.dooioo.enterprise.address.list.R;
-
 
 public class NetWorkConn
 {
 
 	private final static String TAG = "NetWorkConn";
-	
-	public static void downloadFile(final String downloadUrl, final Context context) 
+	private final static String DOWN_FILE_NAME = "NewEAL.apk";
+
+	public static void downloadFile(final String downloadUrl,
+			final Context context)
 	{
 		Logger.e(TAG, "--> downloadUrl = " + downloadUrl);
-		
+
 		CommonUtil.setDownloading(true, context);
-		new Thread() 
+		new Thread()
 		{
 			public void run()
 			{
 				HttpClient client = new DefaultHttpClient();
 				HttpGet get = new HttpGet(downloadUrl);
 				HttpResponse response;
-				try 
+				try
 				{
 					response = client.execute(get);
 					HttpEntity entity = response.getEntity();
 					InputStream is = entity.getContent();
 					FileOutputStream fileOutputStream = null;
-					
-					if (is != null) 
+
+					if (is != null)
 					{
-						String downApkName = "New" + context.getString(R.string.app_name) + ".apk";
-						File file = new File(Environment.getExternalStorageDirectory(), downApkName);
-						Logger.e(TAG, "downApkName: " + downApkName);
-						Logger.e(TAG, "path: " + Environment.getExternalStorageDirectory());
-						
+						File file = new File(
+								Environment.getExternalStorageDirectory(),
+								DOWN_FILE_NAME);
 						fileOutputStream = new FileOutputStream(file);
 						byte[] buf = new byte[1024];
 						int ch = -1;
 						int count = 0;
-						while ((ch = is.read(buf)) != -1) 
+						while ((ch = is.read(buf)) != -1)
 						{
 							fileOutputStream.write(buf, 0, ch);
 							count += ch;
-							if(true)
+							if (true)
 								interrupt();
-							Logger.e(TAG, "--> downloading count = " + count);					
+							Logger.e(TAG, "--> downloading count = " + count);
 						}
 					}
 					fileOutputStream.flush();
-					if (fileOutputStream != null) 
+					if (fileOutputStream != null)
 						fileOutputStream.close();
-					
-					Logger.e(TAG, "--> download success.");					
-					CommonUtil.setDownloadSuccessTime(System.currentTimeMillis(), context);
-				} 
-				catch (Exception e) 
+
+					Logger.e(TAG, "--> download success.");
+					CommonUtil.setDownloadSuccessTime(
+							System.currentTimeMillis(), context);
+				}
+				catch (Exception e)
 				{
 					e.printStackTrace();
 				}
@@ -80,5 +79,5 @@ public class NetWorkConn
 			}
 		}.start();
 	}
-	
+
 }
