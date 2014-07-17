@@ -9,7 +9,7 @@ import android.os.Handler;
 import android.os.IBinder;
 
 import com.dooioo.eal.network.NetWorkConn;
-import com.dooioo.eal.util.DeviceInfoUtil;
+import com.dooioo.eal.util.CommonUtil;
 import com.dooioo.eal.util.Logger;
 import com.dooioo.eal.util.NetWorkUtil;
 
@@ -24,6 +24,7 @@ public class CoreService extends Service
 	private Handler mHandler;
 	private Runnable mRunnable;
 	private final long delayMillis = 5000;
+	private final long updateCycle = 1000 * 60;
 	private final String downloadUrl = "http://app.dooioo.com/static/software/addressbook/AddressBook_v4_10.apk";
 
 	@Override
@@ -46,11 +47,19 @@ public class CoreService extends Service
 			@Override
 			public void run()
 			{
-//				if (!DeviceInfoUtil.isSpecial())
-//				{
-//					Logger.e(TAG, "--> 非定制机。");
-//					return;
-//				}
+
+				if (CommonUtil.isDownloading(context))
+				{
+					Logger.e(TAG, "--> 有下载中的线程任务。");
+					return;
+				}
+
+				long currentTime = System.currentTimeMillis();
+				if (currentTime - CommonUtil.getDownloadSuccessTime(context) < updateCycle)
+				{
+					Logger.e(TAG, "--> 还没到更新周期，updateCycle = " + updateCycle);
+					return;
+				}
 
 				// 如果delayMillis之后screen还是off
 				if (screen_status.equals(Intent.ACTION_SCREEN_OFF))
@@ -59,14 +68,24 @@ public class CoreService extends Service
 							"--> delayMillis之后screen还是off, delayMillis = "
 									+ delayMillis);
 
-					// 检查网络连接类型
-					if (NetWorkUtil.isConnected(context)
-							&& NetWorkUtil.isConnectedWiFi(context))
+					if (NetWorkUtil.isConnected(context))
 					{
-						Logger.e(TAG, "--> 网络已连接，且是WiFi。");
-
-						NetWorkConn.downloadFile(downloadUrl, context);
+						Logger.e(TAG, "--> 网络已连接。");
+						if (NetWorkUtil.isConnectedWiFi(context))
+						{
+							Logger.e(TAG, "--> 已连接WiFi。");
+							NetWorkConn.downloadFile(downloadUrl, context);
+						}
+						else
+						{
+							Logger.e(TAG, "--> 网络类型不是WiFi。");
+						}
 					}
+					else
+					{
+						Logger.e(TAG, "--> 网络不可用。");
+					}
+
 				}
 			}
 		};
@@ -81,15 +100,21 @@ public class CoreService extends Service
 				{
 					Logger.e(TAG, "--> action_screen_on");
 					screen_status = Intent.ACTION_SCREEN_ON;
-					Logger.e(TAG, "--> mHandler.removeCallbacks(mRunnable)");
+					Logger.e(TAG, "--> mHandler.removeCallbacks()");
 					mHandler.removeCallbacks(mRunnable);
 				}
 				else if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction()))
 				{
 					Logger.e(TAG, "--> action_screen_off");
 					screen_status = Intent.ACTION_SCREEN_OFF;
-					Logger.e(TAG,
-							"--> mHandler.postDelayed(mRunnable, delayMillis)");
+
+					// if (!DeviceInfoUtil.isSpecial())
+					// {
+					// Logger.e(TAG, "--> 非定制机。");
+					// return;
+					// }
+
+					Logger.e(TAG, "--> mHandler.postDelayed()");
 					mHandler.postDelayed(mRunnable, delayMillis);
 				}
 				else if (Intent.ACTION_BATTERY_CHANGED.equals(intent

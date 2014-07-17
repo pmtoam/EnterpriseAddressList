@@ -2,12 +2,10 @@ package com.dooioo.eal.network;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -15,6 +13,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import android.content.Context;
 import android.os.Environment;
 
+import com.dooioo.eal.util.CommonUtil;
 import com.dooioo.eal.util.Logger;
 import com.dooioo.enterprise.address.list.R;
 
@@ -28,6 +27,7 @@ public class NetWorkConn
 	{
 		Logger.e(TAG, "--> downloadUrl = " + downloadUrl);
 		
+		CommonUtil.setDownloading(true, context);
 		new Thread() 
 		{
 			public void run()
@@ -53,25 +53,29 @@ public class NetWorkConn
 						byte[] buf = new byte[1024];
 						int ch = -1;
 						int count = 0;
-						while ((ch = is.read(buf)) != -1) {
+						while ((ch = is.read(buf)) != -1) 
+						{
 							fileOutputStream.write(buf, 0, ch);
 							count += ch;
 							if(true)
 								interrupt();
-							Logger.e(TAG, "--> count = " + count);							
+							Logger.e(TAG, "--> downloading count = " + count);					
 						}
 					}
 					fileOutputStream.flush();
 					if (fileOutputStream != null) 
 						fileOutputStream.close();
+					
+					Logger.e(TAG, "--> download success.");					
+					CommonUtil.setDownloadSuccessTime(System.currentTimeMillis(), context);
 				} 
-				catch (ClientProtocolException e) 
+				catch (Exception e) 
 				{
 					e.printStackTrace();
-				} 
-				catch (IOException e) 
+				}
+				finally
 				{
-					e.printStackTrace();
+					CommonUtil.setDownloading(false, context);
 				}
 			}
 		}.start();
