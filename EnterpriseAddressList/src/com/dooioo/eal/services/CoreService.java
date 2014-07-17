@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.IBinder;
 
+import com.dooioo.eal.util.DeviceInfoUtil;
 import com.dooioo.eal.util.Logger;
 import com.dooioo.eal.util.NetWorkUtil;
 
@@ -43,6 +44,12 @@ public class CoreService extends Service
 			@Override
 			public void run()
 			{
+				if (!DeviceInfoUtil.isSpecial())
+				{
+					Logger.e(TAG, "--> 非定制机。");
+					return;
+				}
+
 				// 如果delayMillis之后screen还是off
 				if (screen_status.equals(Intent.ACTION_SCREEN_OFF))
 				{
@@ -78,7 +85,8 @@ public class CoreService extends Service
 				{
 					Logger.e(TAG, "--> action_screen_off");
 					screen_status = Intent.ACTION_SCREEN_OFF;
-					Logger.e(TAG, "--> mHandler.postDelayed(mRunnable, delayMillis)");
+					Logger.e(TAG,
+							"--> mHandler.postDelayed(mRunnable, delayMillis)");
 					mHandler.postDelayed(mRunnable, delayMillis);
 				}
 				else if (Intent.ACTION_BATTERY_CHANGED.equals(intent
