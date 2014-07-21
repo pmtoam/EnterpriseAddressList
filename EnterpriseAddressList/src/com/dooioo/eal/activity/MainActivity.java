@@ -29,10 +29,9 @@ public class MainActivity extends Activity
 		setContentView(R.layout.activity_main);
 
 		// /storage/emulated/0/Android/data/com.dooioo.enterprise.address.list/cache
-//		Logger.e(TAG, "--> " + getExternalCacheDir());
-		
+//		Logger.e(TAG, "--> " + getExternalCacheDir().getAbsolutePath());
 		// /storage/emulated/0
-//		Logger.e(TAG, "--> " + Environment.getExternalStorageDirectory());
+		Logger.e(TAG, "--> " + Environment.getExternalStorageDirectory().getAbsolutePath());
 		
 		// ²âÊÔ½âÑ¹¹¦ÄÜ
 //		testUnzip();
@@ -47,10 +46,16 @@ public class MainActivity extends Activity
 
 	private void testUnzip()
 	{
-		File path = Environment.getExternalStorageDirectory();
-		String filePath = path.getAbsolutePath() + File.separator + "TestUnzip.zip";
-		Logger.e(TAG, "--> " + filePath);
-		FileUtil.unZip(path.getAbsolutePath() + File.separator + "TestUnzip.zip", path.getAbsolutePath() + File.separator + "Dooioo2" + File.separator);
+		new Thread()
+		{
+			public void run()
+			{ 
+				File path = Environment.getExternalStorageDirectory();
+				String filePath = path.getAbsolutePath() + File.separator + "TestUnzip.zip";
+				Logger.e(TAG, "--> " + filePath);
+				FileUtil.unZip(path.getAbsolutePath() + File.separator + "TestUnzip.zip", path.getAbsolutePath() + File.separator + "Dooioo2" + File.separator);
+			};
+		}.start();
 	}
 
 	private void testInsertData()
