@@ -28,30 +28,44 @@ public class MainActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		// 测试查看数据库
-		SQLiteDatabase sqLiteDatabase = FileUtil.openDatabase(context);
-		Cursor cursor = sqLiteDatabase.query("tb_employee", new String[] { "*" },null, null, null,null, null, null);
-		while (cursor.moveToNext())
-		{
-			Logger.e(TAG, "--> " + cursor.getString(1));
-		}
-		cursor.close();
-		sqLiteDatabase.close();
+		// 5.测试解析assets自带数据库
+		testCheckDB();
 
+		// 4.测试获取根目录
 		// /storage/emulated/0/Android/data/com.dooioo.enterprise.address.list/cache
 //		Logger.e(TAG, "--> " + getExternalCacheDir().getAbsolutePath());
 		// /storage/emulated/0
 //		Logger.e(TAG, "--> " + Environment.getExternalStorageDirectory().getAbsolutePath());
 		
-		// 测试解压功能
+		// 3.测试解压功能
 //		testUnzip();
 		
-		// 启动Service
+		// 2.启动Service
 //		startService(new Intent(context, CoreService.class));
 		
-		// 测试添加数据到数据库
+		// 1.测试添加数据到数据库
 //		testInsertData();
 
+	}
+
+	private void testCheckDB()
+	{
+		new Thread()
+		{
+			public void run()
+			{ 
+				SQLiteDatabase sqLiteDatabase = FileUtil.openDatabase(context);
+				// query(boolean distinct, String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy, String limit)
+				// Cursor c = db.query(false, "customer", new String[] { "*" }, "empNo=?", new String[] { String.valueOf(empNo) }, null, null, "id ASC", null);
+				Cursor cursor = sqLiteDatabase.query("tb_employee", new String[] { "*" },null, null, null,null, null, null);
+				while (cursor.moveToNext())
+				{
+					Logger.e(TAG, "--> " + cursor.getString(1));
+				}
+				cursor.close();
+				sqLiteDatabase.close();
+			};
+		}.start();		
 	}
 
 	private void testUnzip()
