@@ -12,6 +12,14 @@ public class FileUtil
 {
 	private final static String TAG = "FileUtil";
 
+	/**
+	 * 
+	 * @param zipFile
+	 *            path.getAbsolutePath() + File.separator + "TestUnzip.zip"
+	 * @param targetDir
+	 *            path.getAbsolutePath() + File.separator + "Dooioo2" +
+	 *            File.separator
+	 */
 	public static void unZip(String zipFile, String targetDir)
 	{
 		final int BUFFER = 4096; // 这里缓冲区我们使用4KB，
@@ -30,7 +38,7 @@ public class FileUtil
 
 				try
 				{
-					Logger.e(TAG, "=" + entry);
+					Logger.e(TAG, "entry = " + entry);
 					int count;
 					byte data[] = new byte[BUFFER];
 					strEntry = entry.getName();
@@ -47,9 +55,11 @@ public class FileUtil
 					while ((count = zis.read(data, 0, BUFFER)) != -1)
 					{
 						dest.write(data, 0, count);
+						Logger.e(TAG, "unziping... count = " + count);
 					}
 					dest.flush();
 					dest.close();
+					Logger.e(TAG, "unziping... dest.close();");
 				}
 				catch (Exception ex)
 				{
@@ -57,10 +67,12 @@ public class FileUtil
 				}
 			}
 			zis.close();
+			Logger.e(TAG, "unziping... zis.close();");
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
+		Logger.e(TAG, "unziping... finish.");
 	}
 }

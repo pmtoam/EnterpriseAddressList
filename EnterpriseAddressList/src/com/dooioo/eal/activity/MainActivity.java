@@ -1,14 +1,19 @@
 package com.dooioo.eal.activity;
 
+import java.io.File;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 
 import com.dooioo.eal.dao.tools.EmployeeDBTool;
 import com.dooioo.eal.entity.Employee;
 import com.dooioo.eal.services.CoreService;
+import com.dooioo.eal.util.FileUtil;
+import com.dooioo.eal.util.Logger;
 import com.dooioo.enterprise.address.list.R;
 
 public class MainActivity extends Activity
@@ -23,12 +28,29 @@ public class MainActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		// /storage/emulated/0/Android/data/com.dooioo.enterprise.address.list/cache
+//		Logger.e(TAG, "--> " + getExternalCacheDir());
+		
+		// /storage/emulated/0
+//		Logger.e(TAG, "--> " + Environment.getExternalStorageDirectory());
+		
+		// 测试解压功能
+//		testUnzip();
+		
 		// 启动Service
-		startService(new Intent(context, CoreService.class));
+//		startService(new Intent(context, CoreService.class));
 		
 		// 测试添加数据到数据库
 //		testInsertData();
 
+	}
+
+	private void testUnzip()
+	{
+		File path = Environment.getExternalStorageDirectory();
+		String filePath = path.getAbsolutePath() + File.separator + "TestUnzip.zip";
+		Logger.e(TAG, "--> " + filePath);
+		FileUtil.unZip(path.getAbsolutePath() + File.separator + "TestUnzip.zip", path.getAbsolutePath() + File.separator + "Dooioo2" + File.separator);
 	}
 
 	private void testInsertData()
