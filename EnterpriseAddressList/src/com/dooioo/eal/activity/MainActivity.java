@@ -4,14 +4,14 @@ import java.io.File;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 
 import com.dooioo.eal.dao.tools.EmployeeDBTool;
 import com.dooioo.eal.entity.Employee;
-import com.dooioo.eal.services.CoreService;
 import com.dooioo.eal.util.FileUtil;
 import com.dooioo.eal.util.Logger;
 import com.dooioo.enterprise.address.list.R;
@@ -28,10 +28,20 @@ public class MainActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		// 测试查看数据库
+		SQLiteDatabase sqLiteDatabase = FileUtil.openDatabase(context);
+		Cursor cursor = sqLiteDatabase.query("tb_employee", new String[] { "*" },null, null, null,null, null, null);
+		while (cursor.moveToNext())
+		{
+			Logger.e(TAG, "--> " + cursor.getString(1));
+		}
+		cursor.close();
+		sqLiteDatabase.close();
+
 		// /storage/emulated/0/Android/data/com.dooioo.enterprise.address.list/cache
 //		Logger.e(TAG, "--> " + getExternalCacheDir().getAbsolutePath());
 		// /storage/emulated/0
-		Logger.e(TAG, "--> " + Environment.getExternalStorageDirectory().getAbsolutePath());
+//		Logger.e(TAG, "--> " + Environment.getExternalStorageDirectory().getAbsolutePath());
 		
 		// 测试解压功能
 //		testUnzip();

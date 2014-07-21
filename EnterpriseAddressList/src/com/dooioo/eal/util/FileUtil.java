@@ -5,10 +5,13 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import android.content.Context;
+import android.content.res.AssetManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 
 public class FileUtil
@@ -103,5 +106,50 @@ public class FileUtil
 			// 应用缓存目录[/data/data/应用包名/cache]
 			return context.getCacheDir().getAbsolutePath();
 		}
+	}
+
+	private static SQLiteDatabase database;
+	public static final String DATABASE_FILENAME = "dooiooAddressList.db3"; // 这个是DB文件名字
+	public static final String CACHE_DIR_NAME = "dooioo3";
+	public static String database_path;
+
+	public static SQLiteDatabase openDatabase(Context context)
+	{
+		database_path = FileUtil.getRootDir(context);
+
+		try
+		{
+			String databaseFilename = database_path + File.separator
+					+ DATABASE_FILENAME;
+			File dir = new File(database_path);
+			if (!dir.exists())
+			{
+				dir.mkdir();
+			}
+			if (!(new File(databaseFilename)).exists())
+			{
+
+				AssetManager assetManager = context.getAssets();
+				InputStream is = assetManager.open(DATABASE_FILENAME);
+				FileOutputStream fos = new FileOutputStream(databaseFilename);
+				byte[] buffer = new byte[8192];
+				int count = 0;
+				while ((count = is.read(buffer)) > 0)
+				{
+					fos.write(buffer, 0, count);
+				}
+
+				fos.close();
+				is.close();
+			}
+			database = SQLiteDatabase.openOrCreateDatabase(databaseFilename,
+					null);
+			return database;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
