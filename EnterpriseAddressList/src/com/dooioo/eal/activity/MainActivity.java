@@ -29,7 +29,7 @@ public class MainActivity extends Activity
 		setContentView(R.layout.activity_main);
 
 		// 5.测试解析assets自带数据库
-		testCheckDB();
+//		testCheckDB();
 
 		// 4.测试获取根目录
 		// /storage/emulated/0/Android/data/com.dooioo.enterprise.address.list/cache
@@ -58,11 +58,14 @@ public class MainActivity extends Activity
 				// query(boolean distinct, String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy, String limit)
 				// Cursor c = db.query(false, "customer", new String[] { "*" }, "empNo=?", new String[] { String.valueOf(empNo) }, null, null, "id ASC", null);
 				Cursor cursor = sqLiteDatabase.query("tb_employee", new String[] { "*" },null, null, null,null, null, null);
-				while (cursor.moveToNext())
+				if (cursor != null)
 				{
-					Logger.e(TAG, "--> " + cursor.getString(1));
+					while (cursor.moveToNext())
+					{
+						Logger.e(TAG, "--> " + cursor.getString(1));
+					}
+					cursor.close();
 				}
-				cursor.close();
 				sqLiteDatabase.close();
 			};
 		}.start();		
