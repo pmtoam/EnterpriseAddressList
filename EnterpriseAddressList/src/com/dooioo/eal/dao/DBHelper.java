@@ -15,17 +15,20 @@ public class DBHelper extends SQLiteOpenHelper
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 	
+//	values.put("userNameCn", employee.userNameCn);
+//	values.put("mobilePhone", employee.mobilePhone);
+//	values.put("orgName", employee.orgName);
+//	values.put("userTitle", employee.userTitle);
+	
 	static String sql_employee = "";
 	static
 	{
 		sql_employee = "CREATE TABLE " + TABLE_EMP + "("
 				+ "id INTEGER PRIMARY KEY AUTOINCREMENT," 
-	            + "empNum TEXT,"
-	            + "empName TEXT,"
-	            + "sex TEXT,"
-	            + "department TEXT,"
-	            + "phoneNum TEXT,"
-				+ "photo TEXT"
+	            + "userNameCn TEXT,"
+	            + "mobilePhone TEXT,"
+	            + "orgName TEXT,"
+				+ "userTitle TEXT"
 				+ ")";
 	}
 

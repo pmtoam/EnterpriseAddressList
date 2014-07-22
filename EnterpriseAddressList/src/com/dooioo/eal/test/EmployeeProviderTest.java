@@ -22,7 +22,7 @@ public class EmployeeProviderTest extends AndroidTestCase
 	{
 		// Uri uri = CONTENT_URI;
 		Uri uri = Uri.parse("content://" + PROVIDER_NAME + "/employees"
-				+ "/93468");
+				+ "/18116136307");
 		Cursor c = null;
 		if (android.os.Build.VERSION.SDK_INT < 11)
 		{
@@ -47,7 +47,10 @@ public class EmployeeProviderTest extends AndroidTestCase
 		{
 			do
 			{
-				Log.e(TAG, "--> " + c.getString(c.getColumnIndex("empNum")));
+				Log.e(TAG, "--> " + c.getString(c.getColumnIndex("userNameCn")));
+				Log.e(TAG, "--> " + c.getString(c.getColumnIndex("mobilePhone")));
+				Log.e(TAG, "--> " + c.getString(c.getColumnIndex("orgName")));
+				Log.e(TAG, "--> " + c.getString(c.getColumnIndex("userTitle")));
 			}
 			while (c.moveToNext());
 		}

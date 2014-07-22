@@ -53,7 +53,7 @@ public class EmployeesProvider extends ContentProvider
 		
 		if (uriMatcher.match(uri) == EMPLOYEE_EMP_NUM)
 		{
-			sqlBuilder.appendWhere("empNum = " + uri.getPathSegments().get(1));
+			sqlBuilder.appendWhere("mobilePhone = " + uri.getPathSegments().get(1));
 		}
 		
 		Cursor c = sqlBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
