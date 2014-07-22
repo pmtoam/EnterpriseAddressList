@@ -38,4 +38,32 @@ public class CommonUtil
 	}
 
 	// ---------------------------------------------------------------------------
+	public static void setWindowX(float x, Context context)
+	{
+		SharedPreferences sp = context.getSharedPreferences(PREFS_CACHE_ONE, 0);
+		SharedPreferences.Editor editor = sp.edit();
+		editor.putFloat("x", x);
+		editor.commit();
+	}
+	
+	public static float getWindowX(Context context)
+	{
+		SharedPreferences sp = context.getSharedPreferences(PREFS_CACHE_ONE, 0);
+		return sp.getFloat("x", 0);
+	}
+	
+	// ---------------------------------------------------------------------------
+	public static void setWindowY(float y, Context context)
+	{
+		SharedPreferences sp = context.getSharedPreferences(PREFS_CACHE_ONE, 0);
+		SharedPreferences.Editor editor = sp.edit();
+		editor.putFloat("y", y);
+		editor.commit();
+	}
+
+	public static float getWindowY(Context context)
+	{
+		SharedPreferences sp = context.getSharedPreferences(PREFS_CACHE_ONE, 0);
+		return sp.getFloat("y", 0);
+	}
 }
