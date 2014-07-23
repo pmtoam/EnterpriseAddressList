@@ -45,13 +45,13 @@ public class CommonUtil
 		editor.putFloat("x", x);
 		editor.commit();
 	}
-	
+
 	public static float getWindowX(Context context)
 	{
 		SharedPreferences sp = context.getSharedPreferences(PREFS_CACHE_ONE, 0);
 		return sp.getFloat("x", 0);
 	}
-	
+
 	// ---------------------------------------------------------------------------
 	public static void setWindowY(float y, Context context)
 	{
@@ -64,6 +64,6 @@ public class CommonUtil
 	public static float getWindowY(Context context)
 	{
 		SharedPreferences sp = context.getSharedPreferences(PREFS_CACHE_ONE, 0);
-		return sp.getFloat("y", 0);
+		return sp.getFloat("y", 260);
 	}
 }

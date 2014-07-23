@@ -2,6 +2,7 @@ package com.dooioo.eal.dao.tools;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.dooioo.eal.dao.DBHelper;
@@ -12,7 +13,7 @@ public class EmployeeDBTool
 {
 	
 	Context context;
-	private final String TAG = "EmployeeDBTool";
+	private final static String TAG = "EmployeeDBTool";
 	
 	public EmployeeDBTool(Context context)
 	{
@@ -64,6 +65,35 @@ public class EmployeeDBTool
 			dbHelper.close();
 		}
 	}
+
+	public static Employee queryEmployee(Context context, String incomingNumber)
+	{
+		Employee employee = null;
+		DBHelper dbHelper = new DBHelper(context);
+		SQLiteDatabase sqLiteDatabase = dbHelper.getReadableDatabase();
+		Cursor c = sqLiteDatabase.query(DBHelper.TABLE_EMP, null, "mobilePhone = ?", new String[] { incomingNumber }, null, null, null);
+		Logger.e(TAG, "--> c.getCount() = " + c.getCount());
+		if (c != null)
+		{
+			while (c.moveToFirst())
+			{
+//				Logger.e(TAG, "--> " + c.getString(1));
+//				Logger.e(TAG, "--> " + c.getString(2));
+//				Logger.e(TAG, "--> " + c.getString(3));
+//				Logger.e(TAG, "--> " + c.getString(4));
+				employee = new Employee();
+				employee.userNameCn = c.getString(1);
+				employee.mobilePhone = c.getString(2);
+				employee.orgName = c.getString(3);
+				employee.userTitle = c.getString(4);
+				break;
+			}
+		}
+		c.close();
+		sqLiteDatabase.close();
+		return employee;
+	}
+
 
 //	public void insert(Employee employee)
 //	{

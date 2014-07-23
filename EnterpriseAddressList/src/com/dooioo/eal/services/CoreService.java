@@ -16,16 +16,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.dooioo.eal.activity.MyApplication;
 import com.dooioo.eal.activity.MyFloatView;
+import com.dooioo.eal.dao.tools.EmployeeDBTool;
+import com.dooioo.eal.entity.Employee;
 import com.dooioo.eal.network.NetWorkConn;
+import com.dooioo.eal.util.Algorithm;
 import com.dooioo.eal.util.CommonUtil;
-import com.dooioo.eal.util.DensityUtil;
+import com.dooioo.eal.util.DeviceInfoUtil;
 import com.dooioo.eal.util.Logger;
 import com.dooioo.eal.util.NetWorkUtil;
+import com.dooioo.eal.util.TextUtil;
 import com.dooioo.enterprise.address.list.R;
 
 public class CoreService extends Service
@@ -39,11 +42,11 @@ public class CoreService extends Service
 	private Handler mHandler;
 	private Runnable mRunnable;
 	private final long delayMillis = 5000;
-	private final long updateCycle = 1000 * 60 * 60;
+	private final long updateCycle = 1000 * 60 * 60 * 12;// 1000 * 60 * 60 * 12
 	private final String downloadUrl = "http://app.dooioo.com/static/software/addressbook/AddressBook_v4_10.apk";
 
 	private LayoutInflater inflater;
-	private WindowManager windowManager;
+	private WindowManager mWindowManager;
 	private View view;
 
 	@Override
@@ -155,7 +158,7 @@ public class CoreService extends Service
 		registerReceiver(mReceiver, intentFilter);
 
 		inflater = LayoutInflater.from(getApplicationContext());
-		windowManager = (WindowManager) getApplicationContext()
+		mWindowManager = (WindowManager) getApplicationContext()
 				.getSystemService(Context.WINDOW_SERVICE);
 
 		TelephonyManager tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
@@ -192,7 +195,7 @@ public class CoreService extends Service
 	{
 
 		@Override
-		public void onCallStateChanged(int state, String incomingNumber)
+		public void onCallStateChanged(int state, final String incomingNumber)
 		{
 			super.onCallStateChanged(state, incomingNumber);
 			try
@@ -200,19 +203,48 @@ public class CoreService extends Service
 				switch (state)
 				{
 				case TelephonyManager.CALL_STATE_IDLE: // 空闲状态，没有通话没有响铃
-					 if (view != null)
-					 windowManager.removeView(view);
-					if (myFV != null)
-						windowManager.removeView(myFV);
+					if (view != null)
+						mWindowManager.removeView(view);
+					if (myFloatView != null)
+						mWindowManager.removeView(myFloatView);
 					break;
 				case TelephonyManager.CALL_STATE_RINGING: // 响铃状态
 					Log.e(TAG, "-->发现来电号码" + incomingNumber);
+					Log.e(TAG,
+							"-->解密来电号码" + Algorithm.decryption(incomingNumber));
 
 					// Intent intent = new Intent();
 					// intent.setAction("android.intent.action.DOOIOO_CALL_STATE_RINGING");
 					// sendBroadcast(intent);
+					Employee employee = null;
+					if (DeviceInfoUtil.isSpecial())
+					{
+						employee = EmployeeDBTool.queryEmployee(context,
+								Algorithm.decryption(incomingNumber));
+					}
+					else
+					{
+						employee = EmployeeDBTool.queryEmployee(context,
+								incomingNumber);
+					}
 
-					addView();
+					if (null != employee)
+					{
+						addView(employee);
+					}
+					else
+					{
+						if (DeviceInfoUtil.isSpecial())
+						{
+							addView(new Employee("", "",
+									Algorithm.decryption(incomingNumber), ""));
+						}
+						else
+						{
+							addView(new Employee("", "", incomingNumber, ""));
+						}
+					}
+
 					break;
 				case TelephonyManager.CALL_STATE_OFFHOOK: // 通话状态
 					break;
@@ -225,65 +257,49 @@ public class CoreService extends Service
 		}
 	}
 
-	private WindowManager.LayoutParams wmParams = null;
-	/* 悬浮View的代码，这里用一个ImageView作为演示 */
-	private MyFloatView myFV = null;
+	private WindowManager.LayoutParams wmParams;
+	private MyFloatView myFloatView;
 
-	public void addView()
+	public void addView(Employee employee)
 	{
-////		view = inflater.inflate(R.layout.activity_prompt, null);
-//		 // TextView tv_address = (TextView) view
-//		 // .findViewById(R.id.tv_show_address);
-//		 // TextView tv_number = (TextView) view
-//		 // .findViewById(R.id.tv_show_number);
-//		 // tv_address.setText(address);
-//		 //查询该号码对应的名字
-//		 // String numbername = queryNumberName(incomingNumber);
-//		 // tv_number.setText(numbername);
-//		 final WindowManager.LayoutParams params = new
-//		 WindowManager.LayoutParams();
-//		 params.height = WindowManager.LayoutParams.MATCH_PARENT;
-//		 params.width = WindowManager.LayoutParams.MATCH_PARENT;
-//		 params.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-//		 | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-//		 | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
-//		 params.format = PixelFormat.TRANSLUCENT;
-//		 //获取偏移量
-//		 // int dx= sp.getInt("dx", 0);
-//		 // int dy = sp.getInt("dy", 0);
-//		 // System.out.println("dx =" + dx);
-//		 // System.out.println("dy =" + dx);
-////		 params.x= 500 +params.x ;
-////		 params.y = 500 +params.y;
-//		 params.x = (int) CommonUtil.getWindowX(context);
-//		 params.y = (int) CommonUtil.getWindowY(context);
-//		
-//		 params.type = WindowManager.LayoutParams.TYPE_TOAST;
-//		 // add window bad token
-//		 windowManager.addView(view, params);
+		myFloatView = new MyFloatView(getApplicationContext());
 
-		myFV = new MyFloatView(getApplicationContext());
-		TextView tv_name = (TextView) myFV.findViewById(R.id.tv_name);
-		tv_name.setText("习近平");
-		// 获取WindowManager
-		windowManager = (WindowManager) getApplicationContext()
-				.getSystemService("window");
-		// 设置LayoutParams(全局变量）相关参数
+		TextView tv_name = (TextView) myFloatView.findViewById(R.id.tv_name);
+		tv_name.setText(employee.userNameCn);
+		TextView tv_phone_num = (TextView) myFloatView
+				.findViewById(R.id.tv_phone_num);
+
+		if (DeviceInfoUtil.isSpecial())
+		{
+			tv_phone_num.setText(TextUtil.replaceFixedPos(employee.mobilePhone,
+					5, 8, "****"));
+		}
+		else
+		{
+			tv_phone_num.setText(employee.mobilePhone);
+		}
+		TextView tv_org = (TextView) myFloatView.findViewById(R.id.tv_org);
+		tv_org.setText(employee.orgName);
+		TextView tv_title = (TextView) myFloatView.findViewById(R.id.tv_title);
+		tv_title.setText(employee.userTitle);
+
+		mWindowManager = (WindowManager) getApplicationContext()
+				.getSystemService(Context.WINDOW_SERVICE);
 		wmParams = ((MyApplication) getApplication()).getMywmParams();
 
 		/**
 		 * 以下都是WindowManager.LayoutParams的相关属性 具体用途可参考SDK文档
 		 */
-		wmParams.type = LayoutParams.TYPE_PHONE; // 设置window type
+		if (DeviceInfoUtil.isSpecial())
+		{
+			wmParams.type = LayoutParams.TYPE_PHONE
+					| LayoutParams.TYPE_SYSTEM_OVERLAY; // 设置window type
+		}
+		else
+		{
+			wmParams.type = LayoutParams.TYPE_PHONE; // 设置window type
+		}
 		wmParams.format = PixelFormat.RGBA_8888; // 设置图片格式，效果为背景透明
-
-		// 设置Window flag
-		/*
-		 * FLAG_NOT_TOUCH_MODAL = 0x00000020;(十六进制)-->32(十进制)-->100000(二进制)
-		 * FLAG_NOT_FOCUSABLE = 0x00000008;(十六进制)--> 8(十进制)-->001000(二进制)
-		 * LayoutParams.FLAG_NOT_TOUCH_MODAL | LayoutParams.FLAG_NOT_FOCUSABLE =
-		 * 101000(二进制)-->40(十进制)-->0x0028(十六进制)
-		 */
 		wmParams.flags = LayoutParams.FLAG_NOT_TOUCH_MODAL
 				| LayoutParams.FLAG_NOT_FOCUSABLE;
 		/*
@@ -291,17 +307,12 @@ public class CoreService extends Service
 		 * wmParams.flags=LayoutParams.FLAG_NOT_TOUCH_MODAL |
 		 * LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_NOT_TOUCHABLE;
 		 */
-
 		wmParams.gravity = Gravity.LEFT | Gravity.TOP; // 调整悬浮窗口至左上角
-		// 以屏幕左上角为原点，设置x、y初始值
 		wmParams.x = (int) CommonUtil.getWindowX(context);
 		wmParams.y = (int) CommonUtil.getWindowY(context);
-
-		// 设置悬浮窗口长宽数据
 		wmParams.width = LayoutParams.WRAP_CONTENT;
 		wmParams.height = LayoutParams.WRAP_CONTENT;
 
-		// 显示myFloatView图像
-		windowManager.addView(myFV, wmParams);
+		mWindowManager.addView(myFloatView, wmParams);
 	}
 }

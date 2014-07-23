@@ -38,4 +38,23 @@ public class Employee
 	public String joinDate;
 	public String latestJoinDate;
 	public String orgAdress;
+	
+	
+	public Employee()
+	{
+		super();
+	}
+
+
+	public Employee(String userNameCn, String userTitle, String mobilePhone,
+			String orgName)
+	{
+		super();
+		this.userNameCn = userNameCn;
+		this.userTitle = userTitle;
+		this.mobilePhone = mobilePhone;
+		this.orgName = orgName;
+	}
+	
+	
 }
