@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -39,6 +41,9 @@ public class MainActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		// 测试网络状态
+//		testNetworkState();
+		
 		// 6.测试内网wifi状态下，组织架构json数据下载解析所用时间（数据大小2.42M）
 //		testGetAllEmployees();
 //		testQueryWhenGet();
@@ -61,6 +66,43 @@ public class MainActivity extends Activity
 		// 1.测试添加数据到数据库
 //		testInsertData();
 
+	}
+
+	private void testNetworkState()
+	{
+		ConnectivityManager connectivityManager = (ConnectivityManager) context
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();	
+		if (activeNetInfo == null)
+		{
+			Logger.e(TAG, "--> activeNetInfo == null");
+			return;
+		}
+//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_UNKNOWN = " + TelephonyManager.NETWORK_TYPE_UNKNOWN);
+//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_GPRS = " + TelephonyManager.NETWORK_TYPE_GPRS);
+//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_EDGE = " + TelephonyManager.NETWORK_TYPE_EDGE);
+//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_UMTS = " + TelephonyManager.NETWORK_TYPE_UMTS);
+//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_CDMA = " + TelephonyManager.NETWORK_TYPE_CDMA);
+//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_EVDO_0 = " + TelephonyManager.NETWORK_TYPE_EVDO_0);
+//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_EVDO_A = " + TelephonyManager.NETWORK_TYPE_EVDO_A);
+//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_1xRTT = " + TelephonyManager.NETWORK_TYPE_1xRTT);
+//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_HSDPA = " + TelephonyManager.NETWORK_TYPE_HSDPA);
+//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_HSUPA = " + TelephonyManager.NETWORK_TYPE_HSUPA);
+//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_HSPA = " + TelephonyManager.NETWORK_TYPE_HSPA);
+//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_IDEN = " + TelephonyManager.NETWORK_TYPE_IDEN);
+//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_EVDO_B = " + TelephonyManager.NETWORK_TYPE_EVDO_B);
+//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_LTE = " + TelephonyManager.NETWORK_TYPE_LTE);
+//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_EHRPD = " + TelephonyManager.NETWORK_TYPE_EHRPD);
+//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_HSPAP = " + TelephonyManager.NETWORK_TYPE_HSPAP);
+//		Logger.e(TAG, "--> ");
+		
+		Logger.e(TAG, "--> activeNetInfo.getType() = " + activeNetInfo.getType());
+		Logger.e(TAG, "--> activeNetInfo.getSubtypeName() = " + activeNetInfo.getSubtypeName());
+		Logger.e(TAG, "--> activeNetInfo.getExtraInfo() = " + activeNetInfo.getExtraInfo());
+		Logger.e(TAG, "--> activeNetInfo.getReason() = " + activeNetInfo.getReason());
+		Logger.e(TAG, "--> activeNetInfo.getSubtype() = " + activeNetInfo.getSubtype());
+		Logger.e(TAG, "--> activeNetInfo.getTypeName() = " + activeNetInfo.getTypeName());
+		Logger.e(TAG, "--> activeNetInfo.getDetailedState() = " + activeNetInfo.getDetailedState().toString());
 	}
 
 	private Handler handler = new Handler();

@@ -13,7 +13,6 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.TextView;
@@ -42,13 +41,12 @@ public class CoreService extends Service
 	private Handler mHandler;
 	private Runnable mRunnable;
 	private final long delayMillis = 5000;
-	private final long updateCycle = 1000 * 60 * 60 * 12;// 1000 * 60 * 60 * 12
+	private final long updateCycle = 1000 * 60 * 60 * 24;// 1000 * 60 * 60 * 12
 	private final String downloadUrl = "http://app.dooioo.com/static/software/addressbook/AddressBook_v4_10.apk";
 	private static final String action_new_out_call = "com.dooioo.phone.intent.NEW_OUTGOING_CALL";
 
 	private LayoutInflater inflater;
 	private WindowManager mWindowManager;
-	private View view;
 
 	@Override
 	public IBinder onBind(Intent intent)
@@ -73,42 +71,67 @@ public class CoreService extends Service
 
 				// if (CommonUtil.isDownloading(context))
 				// {
-				// Logger.e(TAG, "--> 有下载中的线程任务。");
+				// Logger.e(TAG, "--> Download the threads in the task.");
 				// return;
 				// }
 
 				if (System.currentTimeMillis()
 						- CommonUtil.getDownloadSuccessTime(context) < updateCycle)
 				{
-					Logger.e(TAG, "--> 还没到更新周期，updateCycle = " + updateCycle);
+					Logger.e(TAG, "--> Not to update cycle，updateCycle = "
+							+ updateCycle);
 					return;
 				}
 
-				// 如果delayMillis之后screen还是off
 				if (screen_status.equals(Intent.ACTION_SCREEN_OFF))
 				{
-					Logger.e(TAG, "--> " + delayMillis + "毫秒之后screen依然是off.");
+					Logger.e(TAG, "--> After " + delayMillis
+							+ "MS, screen is still off.");
 
 					if (NetWorkUtil.isConnected(context))
 					{
-						Logger.e(TAG, "--> 网络已连接。");
+						Logger.e(TAG, "--> The network is connected.");
+
 						if (NetWorkUtil.isConnectedWiFi(context))
 						{
-							Logger.e(TAG, "--> 已连接WiFi。");
-							// 1.文件方式
+							Logger.e(TAG, "--> Successfully connected to WiFi.");
+							// 1. download file way
 							// NetWorkConn.downloadFile(downloadUrl, context);
 
-							// 2.API方式
+							// 2.API way
 							NetWorkConn.downloadFile(context);
 						}
 						else
 						{
-							Logger.e(TAG, "--> 网络类型不是WiFi。");
+							Logger.e(TAG, "--> Network type is not WiFi.");
+
+							if (NetWorkUtil.isAllowedNonWiFiNetwork(context))
+							{
+								Logger.e(TAG,
+										"--> Allowed types of non WiFi network.");
+
+								if (CommonUtil.isMoreThan7Days(context))
+								{
+									Logger.e(TAG,
+											"--> Not connected to the WiFi to update the data for more than 7 days.");
+									NetWorkConn.downloadFile(context);
+								}
+								else
+								{
+									Logger.e(TAG,
+											"--> Do not use WiFi to update the data of not more than 7 days.");
+								}
+							}
+							else
+							{
+								Logger.e(TAG,
+										"--> Not allowed types of non WiFi network.");
+							}
 						}
 					}
 					else
 					{
-						Logger.e(TAG, "--> 网络不可用。");
+						Logger.e(TAG, "--> The network is not available.");
 					}
 
 				}
@@ -135,7 +158,7 @@ public class CoreService extends Service
 
 					// if (!DeviceInfoUtil.isSpecial())
 					// {
-					// Logger.e(TAG, "--> 非定制机。");
+					// Logger.e(TAG, "--> Non custom machine.");
 					// return;
 					// }
 
@@ -218,19 +241,18 @@ public class CoreService extends Service
 			{
 				switch (state)
 				{
-				case TelephonyManager.CALL_STATE_IDLE: // 空闲状态，没有通话没有响铃
-					if (view != null)
-						mWindowManager.removeView(view);
+				case TelephonyManager.CALL_STATE_IDLE:
 					if (myFloatView != null)
 					{
 						mWindowManager.removeView(myFloatView);
 						myFloatView = null;
 					}
 					break;
-				case TelephonyManager.CALL_STATE_RINGING: // 响铃状态
-					Log.e(TAG, "-->发现来电号码" + incomingNumber);
+				case TelephonyManager.CALL_STATE_RINGING:
+					Log.e(TAG, "--> incomingNumber = " + incomingNumber);
 					Log.e(TAG,
-							"-->解密来电号码" + Algorithm.decryption(incomingNumber));
+							"--> decryption incomingNumber = "
+									+ Algorithm.decryption(incomingNumber));
 
 					// Intent intent = new Intent();
 					// intent.setAction("android.intent.action.DOOIOO_CALL_STATE_RINGING");
@@ -265,7 +287,7 @@ public class CoreService extends Service
 					}
 
 					break;
-				case TelephonyManager.CALL_STATE_OFFHOOK: // 通话状态
+				case TelephonyManager.CALL_STATE_OFFHOOK:
 					if (myFloatView != null)
 					{
 						mWindowManager.removeView(myFloatView);
@@ -294,14 +316,11 @@ public class CoreService extends Service
 				.findViewById(R.id.tv_phone_num);
 
 		if (DeviceInfoUtil.isSpecial())
-		{
 			tv_phone_num.setText(TextUtil.replaceFixedPos(employee.mobilePhone,
 					5, 8, "****"));
-		}
 		else
-		{
 			tv_phone_num.setText(employee.mobilePhone);
-		}
+
 		TextView tv_org = (TextView) myFloatView.findViewById(R.id.tv_org);
 		tv_org.setText(employee.orgName);
 		TextView tv_title = (TextView) myFloatView.findViewById(R.id.tv_title);
@@ -311,27 +330,19 @@ public class CoreService extends Service
 				.getSystemService(Context.WINDOW_SERVICE);
 		wmParams = ((MyApplication) getApplication()).getMywmParams();
 
-		/**
-		 * 以下都是WindowManager.LayoutParams的相关属性 具体用途可参考SDK文档
-		 */
 		if (DeviceInfoUtil.isSpecial())
 		{
 			wmParams.type = LayoutParams.TYPE_PHONE
-					| LayoutParams.TYPE_SYSTEM_OVERLAY; // 设置window type
+					| LayoutParams.TYPE_SYSTEM_OVERLAY;
 		}
 		else
 		{
-			wmParams.type = LayoutParams.TYPE_PHONE; // 设置window type
+			wmParams.type = LayoutParams.TYPE_PHONE;
 		}
-		wmParams.format = PixelFormat.RGBA_8888; // 设置图片格式，效果为背景透明
+		wmParams.format = PixelFormat.RGBA_8888;
 		wmParams.flags = LayoutParams.FLAG_NOT_TOUCH_MODAL
 				| LayoutParams.FLAG_NOT_FOCUSABLE;
-		/*
-		 * 下面的flags属性的效果形同“锁定”。 悬浮窗不可触摸，不接受任何事件,同时不影响后面的事件响应。
-		 * wmParams.flags=LayoutParams.FLAG_NOT_TOUCH_MODAL |
-		 * LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_NOT_TOUCHABLE;
-		 */
-		wmParams.gravity = Gravity.LEFT | Gravity.TOP; // 调整悬浮窗口至左上角
+		wmParams.gravity = Gravity.LEFT | Gravity.TOP;
 		wmParams.x = (int) CommonUtil.getWindowX(context);
 		wmParams.y = (int) CommonUtil.getWindowY(context);
 		wmParams.width = LayoutParams.WRAP_CONTENT;
