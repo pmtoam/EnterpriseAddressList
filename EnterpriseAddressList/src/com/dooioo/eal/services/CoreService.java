@@ -170,6 +170,16 @@ public class CoreService extends Service
 				{
 					Logger.e(TAG, "--> action_battery_changed");
 					startService(new Intent(context, CoreService.class));
+					try
+					{
+						Intent service2 = new Intent();
+						service2.setClassName("com.dooioo.mycontact", "com.dooioo.service.StartService");
+						context.startService(service2);
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+					}
 				}
 				else if (Intent.ACTION_NEW_OUTGOING_CALL.equals(intent
 						.getAction()))
