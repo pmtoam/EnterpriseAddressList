@@ -206,7 +206,10 @@ public class CoreService extends Service
 					if (view != null)
 						mWindowManager.removeView(view);
 					if (myFloatView != null)
+					{
 						mWindowManager.removeView(myFloatView);
+						myFloatView = null;
+					}
 					break;
 				case TelephonyManager.CALL_STATE_RINGING: // 响铃状态
 					Log.e(TAG, "-->发现来电号码" + incomingNumber);
@@ -247,6 +250,11 @@ public class CoreService extends Service
 
 					break;
 				case TelephonyManager.CALL_STATE_OFFHOOK: // 通话状态
+					if (myFloatView != null)
+					{
+						mWindowManager.removeView(myFloatView);
+						myFloatView = null;
+					}
 					break;
 				}
 			}
