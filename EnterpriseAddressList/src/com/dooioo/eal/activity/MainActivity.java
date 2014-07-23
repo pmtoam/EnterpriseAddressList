@@ -80,6 +80,11 @@ public class MainActivity extends Activity
 				while (c.moveToFirst())
 				{
 					Logger.e(TAG, "--> " + c.getString(1));
+					Logger.e(TAG, "--> " + c.getString(2));
+					Logger.e(TAG, "--> " + c.getString(3));
+					Logger.e(TAG, "--> " + c.getString(4));
+					Logger.e(TAG, "--> " + c.getString(5));
+					Logger.e(TAG, "--> " + c.getString(6));
 					break;
 				}
 			}

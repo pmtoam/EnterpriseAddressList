@@ -23,7 +23,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -32,7 +31,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
@@ -46,14 +44,14 @@ public class DHttpConnUtil
 
 	private static final String TAG = "HttpConnUtil";
 
-	public static int TIME_OUT = 20000;
+	// public static int TIME_OUT = 20000;
 
-	private static void setTimeout(HttpURLConnection conn)
-	{
-		int s = 20000;
-		conn.setConnectTimeout(s);
-		conn.setReadTimeout(s);
-	}
+	// private static void setTimeout(HttpURLConnection conn)
+	// {
+	// int s = 20000;
+	// conn.setConnectTimeout(s);
+	// conn.setReadTimeout(s);
+	// }
 
 	public static String encodeParam(Map<String, String> params)
 	{
@@ -126,7 +124,8 @@ public class DHttpConnUtil
 			Type type) throws Exception
 	{
 		Logger.e(TAG, "(0)--START----------------------------");
-		Logger.e(TAG, targetURL + "?" + encodeParam);
+		Logger.e(TAG, "--> targetURL = " + targetURL);
+		Logger.e(TAG, "--> encodeParam = " + encodeParam);
 
 		HttpURLConnection conn = null;
 		InputStream is = null;
@@ -134,7 +133,7 @@ public class DHttpConnUtil
 
 		URL url = new URL(targetURL);
 		conn = (HttpURLConnection) url.openConnection();
-		setTimeout(conn);
+		// setTimeout(conn);
 		conn.setRequestMethod("POST");
 		conn.setRequestProperty("Connection", "Keep-Alive");
 		conn.setRequestProperty("Content-Type",
@@ -174,12 +173,13 @@ public class DHttpConnUtil
 		BufferedReader bd = new BufferedReader(new InputStreamReader(is));
 		StringBuilder sb = new StringBuilder();
 		char[] cbuf = new char[1024];
-		int count = -1;
-		while ((count = bd.read(cbuf)) >= 0)
+		int ch = -1;
+		int _count = 0;
+		while ((ch = bd.read(cbuf)) >= 0)
 		{
-			sb.append(cbuf, 0, count);
-			StringBuilder sb1 = new StringBuilder();
-			sb1.append(cbuf);
+			sb.append(cbuf, 0, ch);
+			_count += ch;
+			Logger.e(TAG, "--> downloading _count = " + _count);
 		}
 		bd.close();
 		return sb.toString();
@@ -232,9 +232,9 @@ public class DHttpConnUtil
 		httpPost.setEntity(new UrlEncodedFormEntity(_params, "UTF-8"));
 
 		HttpParams httpParams = new BasicHttpParams();
-		ConnManagerParams.setTimeout(httpParams, TIME_OUT);
-		HttpConnectionParams.setConnectionTimeout(httpParams, TIME_OUT);
-		HttpConnectionParams.setSoTimeout(httpParams, TIME_OUT);
+		// ConnManagerParams.setTimeout(httpParams, TIME_OUT);
+		// HttpConnectionParams.setConnectionTimeout(httpParams, TIME_OUT);
+		// HttpConnectionParams.setSoTimeout(httpParams, TIME_OUT);
 		SchemeRegistry schreg = new SchemeRegistry();
 		schreg.register(new Scheme("http", PlainSocketFactory
 				.getSocketFactory(), 80));
@@ -327,9 +327,9 @@ public class DHttpConnUtil
 						httpParams,
 						"Mozilla/5.0(Linux;U;Android;en-us;Nexus One Build.FRG83) "
 								+ "AppleWebKit/553.1(KHTML,like Gecko) Version/4.0 Mobile Safari/533.1");
-		ConnManagerParams.setTimeout(httpParams, TIME_OUT);
-		HttpConnectionParams.setConnectionTimeout(httpParams, TIME_OUT);
-		HttpConnectionParams.setSoTimeout(httpParams, TIME_OUT);
+		// ConnManagerParams.setTimeout(httpParams, TIME_OUT);
+		// HttpConnectionParams.setConnectionTimeout(httpParams, TIME_OUT);
+		// HttpConnectionParams.setSoTimeout(httpParams, TIME_OUT);
 		SchemeRegistry schreg = new SchemeRegistry();
 		schreg.register(new Scheme("http", PlainSocketFactory
 				.getSocketFactory(), 80));

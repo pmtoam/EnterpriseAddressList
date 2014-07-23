@@ -28,7 +28,7 @@ public class EmployeeDBTool
 		try
 		{
 			int _id = db.delete(DBHelper.TABLE_EMP, "mobilePhone = ?", new String[] { mobilePhone });
-			Logger.i(TAG, "--> delete _id = " + _id);
+			Logger.e(TAG, "--> delete _id = " + _id);
 		}
 		catch (Exception e)
 		{
@@ -47,6 +47,8 @@ public class EmployeeDBTool
 		values.put("mobilePhone", employee.mobilePhone);
 		values.put("orgName", employee.orgName);
 		values.put("userTitle", employee.userTitle);
+		values.put("orgId", employee.orgId);
+		values.put("userCode", employee.userCode);
 		
 		DBHelper dbHelper = new DBHelper(context);
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -54,7 +56,7 @@ public class EmployeeDBTool
 		try
 		{
 			long _id = db.insert(DBHelper.TABLE_EMP, "id", values);
-			Logger.i(TAG, "--> insert _id = " + _id);
+			Logger.e(TAG, "--> insert _id = " + _id);
 		}
 		catch (Exception e)
 		{

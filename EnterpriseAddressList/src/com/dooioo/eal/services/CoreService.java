@@ -44,6 +44,7 @@ public class CoreService extends Service
 	private final long delayMillis = 5000;
 	private final long updateCycle = 1000 * 60 * 60 * 12;// 1000 * 60 * 60 * 12
 	private final String downloadUrl = "http://app.dooioo.com/static/software/addressbook/AddressBook_v4_10.apk";
+	private static final String action_new_out_call = "com.dooioo.phone.intent.NEW_OUTGOING_CALL";
 
 	private LayoutInflater inflater;
 	private WindowManager mWindowManager;
@@ -147,6 +148,19 @@ public class CoreService extends Service
 					Logger.e(TAG, "--> action_battery_changed");
 					startService(new Intent(context, CoreService.class));
 				}
+				else if (Intent.ACTION_NEW_OUTGOING_CALL.equals(intent
+						.getAction()))
+				{
+					Logger.e(TAG, "--> normal mobile phone outgoing call");
+
+				}
+				else if (action_new_out_call.equals(intent.getAction()))
+				{
+					// customization mobile phone
+					Logger.e(TAG,
+							"--> customization mobile phone outgoing call");
+
+				}
 
 			}
 		};
@@ -155,6 +169,8 @@ public class CoreService extends Service
 		intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
 		intentFilter.addAction(Intent.ACTION_SCREEN_ON);
 		intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+		intentFilter.addAction(Intent.ACTION_NEW_OUTGOING_CALL);
+		intentFilter.addAction(action_new_out_call);
 		registerReceiver(mReceiver, intentFilter);
 
 		inflater = LayoutInflater.from(getApplicationContext());
