@@ -1,6 +1,9 @@
 package com.dooioo.eal.activity;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.lang.reflect.Type;
 
 import android.app.Activity;
@@ -20,8 +23,10 @@ import com.dooioo.eal.dao.tools.EmployeeDBTool;
 import com.dooioo.eal.entity.Employee;
 import com.dooioo.eal.entity.EmployeeGet;
 import com.dooioo.eal.network.DAsyncTaskRequest;
+import com.dooioo.eal.network.DHttpConnUtil;
 import com.dooioo.eal.network.DHttpRequest;
 import com.dooioo.eal.network.DRequest;
+import com.dooioo.eal.network.NetWorkConn;
 import com.dooioo.eal.services.CoreService;
 import com.dooioo.eal.util.FileUtil;
 import com.dooioo.eal.util.Logger;
@@ -41,6 +46,9 @@ public class MainActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		// 测试组织架构数据解析
+//		testDooiooAll();
+		
 		// 测试网络状态
 //		testNetworkState();
 		
@@ -66,6 +74,33 @@ public class MainActivity extends Activity
 		// 1.测试添加数据到数据库
 //		testInsertData();
 
+	}
+	
+
+	private void testDooiooAll()
+	{
+		String url = "http://dui.dooioo.com/public/json/dooioo/dooiooAll.js";
+		NetWorkConn.downloadFile(url, context, NetWorkConn.DOWN_FILE_NAME_DOOIOO_ALL);
+		File file = new File(Environment.getExternalStorageDirectory(), NetWorkConn.DOWN_FILE_NAME_DOOIOO_ALL);
+		InputStream inputStream = null;
+		try 
+		{
+			inputStream = new BufferedInputStream(new FileInputStream(file));
+		} 
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		String result = null;
+		try
+		{
+			result = DHttpConnUtil.readInputToString(inputStream);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		Logger.e(TAG, "--> result = " + result);
 	}
 
 	private void testNetworkState()

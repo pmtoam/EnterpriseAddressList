@@ -168,7 +168,7 @@ public class DHttpConnUtil
 		return result;
 	}
 
-	private static String readInputToString(InputStream is) throws Exception
+	public static String readInputToString(InputStream is) throws Exception
 	{
 		BufferedReader bd = new BufferedReader(new InputStreamReader(is));
 		StringBuilder sb = new StringBuilder();
