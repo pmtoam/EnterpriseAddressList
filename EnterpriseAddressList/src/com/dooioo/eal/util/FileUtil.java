@@ -9,10 +9,12 @@ import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import net.sqlcipher.database.SQLiteDatabase;
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
+
+import com.dooioo.eal.dao.DBHelper;
 
 public class FileUtil
 {
@@ -28,7 +30,7 @@ public class FileUtil
 	 */
 	public static void unZip(String zipFile, String targetDir)
 	{
-		final int BUFFER = 4096; // 这里缓冲区我们使用4KB，
+		final int BUFFER = 4096;
 		String strEntry; // 保存每个zip的条目名称
 
 		try
@@ -90,7 +92,6 @@ public class FileUtil
 	 * 应用缓存目录[/data/data/应用包名/cache] <br>
 	 * 
 	 * @param context
-	 *            上下文
 	 * @return
 	 */
 	public static String getRootDir(Context context)
@@ -98,58 +99,162 @@ public class FileUtil
 		if (Environment.getExternalStorageState().equals(
 				Environment.MEDIA_MOUNTED))
 		{
-			// 优先获取SD卡根目录[/storage/sdcard0]
 			return Environment.getExternalStorageDirectory().getAbsolutePath();
 		}
 		else
 		{
-			// 应用缓存目录[/data/data/应用包名/cache]
 			return context.getCacheDir().getAbsolutePath();
 		}
 	}
 
-	private static SQLiteDatabase database;
-	public static final String DATABASE_FILENAME = "dooiooAddressList.db3"; // 这个是DB文件名字
-	public static final String CACHE_DIR_NAME = "dooioo3";
+	public static final String DATABASE_FILENAME = "contact.db";
+	public static final String CACHE_DIR_NAME = "dooioo";
 	public static String database_path;
+	static String filePath = "data/data/com.dooioo.enterprise.address.list/"
+			+ DATABASE_FILENAME;
+	static String pathStr = "data/data/com.dooioo.enterprise.address.list";
 
 	public static SQLiteDatabase openDatabase(Context context)
 	{
-		database_path = FileUtil.getRootDir(context);
-
-		try
+		File jhPath = new File(filePath);
+		if (jhPath.exists())
 		{
-			String databaseFilename = database_path + File.separator
-					+ DATABASE_FILENAME;
-			File dir = new File(database_path);
-			if (!dir.exists())
-			{
-				dir.mkdir();
-			}
-			if (!(new File(databaseFilename)).exists())
-			{
+			return SQLiteDatabase.openOrCreateDatabase(jhPath,
+					DBHelper.SECRET_KEY, null);
+		}
+		else
+		{
+			File path = new File(pathStr);
+			if (path.mkdir())
+				Logger.e(TAG, "path.mkdir() == true");
+			else
+				Logger.e(TAG, "path.mkdir() == false");
 
-				AssetManager assetManager = context.getAssets();
-				InputStream is = assetManager.open(DATABASE_FILENAME);
-				FileOutputStream fos = new FileOutputStream(databaseFilename);
-				byte[] buffer = new byte[8192];
+			try
+			{
+				AssetManager am = context.getAssets();
+				InputStream is = am.open(DATABASE_FILENAME);
+				FileOutputStream fos = new FileOutputStream(jhPath);
+				byte[] buffer = new byte[1024];
 				int count = 0;
 				while ((count = is.read(buffer)) > 0)
 				{
 					fos.write(buffer, 0, count);
 				}
-
+				fos.flush();
 				fos.close();
 				is.close();
 			}
-			database = SQLiteDatabase.openOrCreateDatabase(databaseFilename,
-					null);
-			return database;
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				return null;
+			}
+			return openDatabase(context);
+		}
+	}
+
+	/**
+	 * 复制单个文件
+	 * 
+	 * @param oldPath
+	 *            String 原文件路径 如：c:/fqf.txt
+	 * @param newPath
+	 *            String 复制后路径 如：f:/fqf.txt
+	 * @return boolean
+	 */
+	public static void copyFile(String oldPath, String newPath)
+	{
+		try
+		{
+			int bytesum = 0;
+			int byteread = 0;
+			File oldfile = new File(oldPath);
+			File newfile = new File(newPath);
+			if (!newfile.exists())
+			{
+				newfile.createNewFile();
+			}
+			if (oldfile.exists())
+			{ // 文件存在时
+				InputStream inStream = new FileInputStream(oldPath); // 读入原文件
+				FileOutputStream fs = new FileOutputStream(newPath);
+				byte[] buffer = new byte[1444];
+				int length;
+				while ((byteread = inStream.read(buffer)) != -1)
+				{
+					bytesum += byteread; // 字节数 文件大小
+					System.out.println(bytesum);
+					fs.write(buffer, 0, byteread);
+				}
+				inStream.close();
+			}
+		}
+		catch (Exception e)
+		{
+			System.out.println("复制单个文件操作出错");
+			e.printStackTrace();
+
+		}
+
+	}
+
+	/**
+	 * 复制整个文件夹内容
+	 * 
+	 * @param oldPath
+	 *            String 原文件路径 如：c:/fqf
+	 * @param newPath
+	 *            String 复制后路径 如：f:/fqf/ff
+	 * @return boolean
+	 */
+	public void copyFolder(String oldPath, String newPath)
+	{
+
+		try
+		{
+			(new File(newPath)).mkdirs(); // 如果文件夹不存在 则建立新文件夹
+			File a = new File(oldPath);
+			String[] file = a.list();
+			File temp = null;
+			for (int i = 0; i < file.length; i++)
+			{
+				if (oldPath.endsWith(File.separator))
+				{
+					temp = new File(oldPath + file[i]);
+				}
+				else
+				{
+					temp = new File(oldPath + File.separator + file[i]);
+				}
+
+				if (temp.isFile())
+				{
+					FileInputStream input = new FileInputStream(temp);
+					FileOutputStream output = new FileOutputStream(newPath
+							+ "/" + (temp.getName()).toString());
+					byte[] b = new byte[1024 * 5];
+					int len;
+					while ((len = input.read(b)) != -1)
+					{
+						output.write(b, 0, len);
+					}
+					output.flush();
+					output.close();
+					input.close();
+				}
+
+				if (temp.isDirectory())
+				{
+					// 如果是子文件夹
+					copyFolder(oldPath + "/" + file[i], newPath + "/" + file[i]);
+				}
+			}
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-		return null;
+
 	}
 }

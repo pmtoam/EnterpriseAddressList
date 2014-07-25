@@ -249,15 +249,16 @@ public class CoreService extends Service
 									+ Algorithm.decryption(incomingNumber));
 
 					Employee employee = null;
+					EmployeeDBTool employeeDBTool = new EmployeeDBTool(context);
 					if (DeviceInfoUtil.isSpecial())
 					{
-						employee = EmployeeDBTool.queryEmployee(context,
-								Algorithm.decryption(incomingNumber));
+						employee = employeeDBTool.queryEmployee(context,
+								Algorithm.decryption(incomingNumber), false);
 					}
 					else
 					{
-						employee = EmployeeDBTool.queryEmployee(context,
-								incomingNumber);
+						employee = employeeDBTool.queryEmployee(context,
+								incomingNumber, false);
 					}
 
 					if (null != employee)
