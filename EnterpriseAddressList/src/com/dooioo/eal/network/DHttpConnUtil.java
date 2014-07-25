@@ -23,6 +23,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -31,6 +32,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
@@ -304,6 +306,8 @@ public class DHttpConnUtil
 			else
 				url = url + "?" + buffer.toString();
 		}
+		
+		Logger.e(TAG, "---> url = " + url);
 
 		HttpGet httpGet = new HttpGet(url);
 		if (headerParams != null && headerParams.size() > 0)
@@ -327,9 +331,10 @@ public class DHttpConnUtil
 						httpParams,
 						"Mozilla/5.0(Linux;U;Android;en-us;Nexus One Build.FRG83) "
 								+ "AppleWebKit/553.1(KHTML,like Gecko) Version/4.0 Mobile Safari/533.1");
-		// ConnManagerParams.setTimeout(httpParams, TIME_OUT);
-		// HttpConnectionParams.setConnectionTimeout(httpParams, TIME_OUT);
-		// HttpConnectionParams.setSoTimeout(httpParams, TIME_OUT);
+		final int TIME_OUT = 1000 * 60 * 5;
+		ConnManagerParams.setTimeout(httpParams, TIME_OUT);
+		HttpConnectionParams.setConnectionTimeout(httpParams, TIME_OUT);
+		HttpConnectionParams.setSoTimeout(httpParams, TIME_OUT);
 		SchemeRegistry schreg = new SchemeRegistry();
 		schreg.register(new Scheme("http", PlainSocketFactory
 				.getSocketFactory(), 80));
@@ -340,8 +345,13 @@ public class DHttpConnUtil
 		HttpClient httpClient = new DefaultHttpClient(conman, httpParams);
 		HttpResponse response = httpClient.execute(httpGet);
 
+		Logger.e(TAG, "---> response1 #####");
+		Logger.e(TAG, "---> response.getStatusLine().getStatusCode() = " + response.getStatusLine().getStatusCode());
+		
 		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK)
 		{
+			Logger.e(TAG, "---> response2 #####");
+			
 			String txt = EntityUtils.toString(response.getEntity()).trim();
 			Logger.e(TAG, "(getS2)--text = " + txt);
 			Logger.e(TAG, "(getS3)--END------------------------------");

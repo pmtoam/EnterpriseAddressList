@@ -28,6 +28,7 @@ import com.dooioo.eal.network.DHttpRequest;
 import com.dooioo.eal.network.DRequest;
 import com.dooioo.eal.network.NetWorkConn;
 import com.dooioo.eal.services.CoreService;
+import com.dooioo.eal.util.CommonUtil;
 import com.dooioo.eal.util.FileUtil;
 import com.dooioo.eal.util.Logger;
 import com.dooioo.enterprise.address.list.R;
@@ -46,6 +47,12 @@ public class MainActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		// 获取token
+		getToken();
+		
+		//测试获取员工信息外网
+//		testGetAllEmployeesRelease();
+		
 		// 测试组织架构数据解析
 //		testDooiooAll();
 		
@@ -76,6 +83,12 @@ public class MainActivity extends Activity
 
 	}
 	
+
+	private void getToken()
+	{
+		MyApplication.getToken();
+	}
+
 
 	private void testDooiooAll()
 	{
@@ -113,23 +126,6 @@ public class MainActivity extends Activity
 			Logger.e(TAG, "--> activeNetInfo == null");
 			return;
 		}
-//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_UNKNOWN = " + TelephonyManager.NETWORK_TYPE_UNKNOWN);
-//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_GPRS = " + TelephonyManager.NETWORK_TYPE_GPRS);
-//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_EDGE = " + TelephonyManager.NETWORK_TYPE_EDGE);
-//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_UMTS = " + TelephonyManager.NETWORK_TYPE_UMTS);
-//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_CDMA = " + TelephonyManager.NETWORK_TYPE_CDMA);
-//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_EVDO_0 = " + TelephonyManager.NETWORK_TYPE_EVDO_0);
-//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_EVDO_A = " + TelephonyManager.NETWORK_TYPE_EVDO_A);
-//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_1xRTT = " + TelephonyManager.NETWORK_TYPE_1xRTT);
-//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_HSDPA = " + TelephonyManager.NETWORK_TYPE_HSDPA);
-//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_HSUPA = " + TelephonyManager.NETWORK_TYPE_HSUPA);
-//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_HSPA = " + TelephonyManager.NETWORK_TYPE_HSPA);
-//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_IDEN = " + TelephonyManager.NETWORK_TYPE_IDEN);
-//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_EVDO_B = " + TelephonyManager.NETWORK_TYPE_EVDO_B);
-//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_LTE = " + TelephonyManager.NETWORK_TYPE_LTE);
-//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_EHRPD = " + TelephonyManager.NETWORK_TYPE_EHRPD);
-//		Logger.e(TAG, "--> TelephonyManager.NETWORK_TYPE_HSPAP = " + TelephonyManager.NETWORK_TYPE_HSPAP);
-//		Logger.e(TAG, "--> ");
 		
 		Logger.e(TAG, "--> activeNetInfo.getType() = " + activeNetInfo.getType());
 		Logger.e(TAG, "--> activeNetInfo.getSubtypeName() = " + activeNetInfo.getSubtypeName());
@@ -183,6 +179,35 @@ public class MainActivity extends Activity
 		handler.removeCallbacks(runnable);
 	}
 
+	private void testGetAllEmployeesRelease()
+	{
+		
+		DRequest<EmployeeGet> dRequest = new DRequest<EmployeeGet>()
+		{
+			
+			@Override
+			public void showResult(EmployeeGet resp, Exception exception)
+			{
+				if (resp != null)
+				{
+					Logger.e(TAG, "---> resp != null");
+				}
+			}
+		};
+		
+		String url = MyApplication.APP_SERVER_URL + "route/rest?method=renzi.employee.list";
+		
+		Type type = new TypeToken<EmployeeGet>(){}.getType();
+//		Map<String, String> params = new HashMap<String, String>();
+//		params.put("empNo", "102804");
+//		Map<String, String> params = new HashMap<String, String>();
+//		params.put("phoneNumber", number);
+//		params.put("empNo", GlobalAPP.getEmployeeNum());
+		
+		Logger.e(TAG, "---> " + CommonUtil.getAccessToken(context));
+		new DAsyncTaskRequest<EmployeeGet>(activity, dRequest, type, true, null).execute(new DHttpRequest("GET", url, MyApplication.tokenConfigMap, null));
+	}
+	
 	private void testGetAllEmployees()
 	{
 		
