@@ -12,7 +12,6 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.TextView;
@@ -40,12 +39,10 @@ public class CoreService extends Service
 	private String screen_status = Intent.ACTION_SCREEN_ON;
 	private Handler mHandler;
 	private Runnable mRunnable;
-	private final long delayMillis = 5000;
-	private final long updateCycle = 1000 * 60 * 60 * 24;// 1000 * 60 * 60 * 12
+	private final long delayMillis = 1000 * 60;
+	private final long updateCycle = 1000 * 60 * 60 * 12;// 1000 * 60 * 60 * 12
 	private final String downloadUrl = "http://app.dooioo.com/static/software/addressbook/AddressBook_v4_10.apk";
 	private static final String action_new_out_call = "com.dooioo.phone.intent.NEW_OUTGOING_CALL";
-
-	private LayoutInflater inflater;
 	private WindowManager mWindowManager;
 
 	@Override
@@ -155,13 +152,6 @@ public class CoreService extends Service
 				{
 					Logger.e(TAG, "--> action_screen_off");
 					screen_status = Intent.ACTION_SCREEN_OFF;
-
-					// if (!DeviceInfoUtil.isSpecial())
-					// {
-					// Logger.e(TAG, "--> Non custom machine.");
-					// return;
-					// }
-
 					Logger.e(TAG, "--> mHandler.postDelayed()");
 					mHandler.postDelayed(mRunnable, delayMillis);
 				}
@@ -173,7 +163,8 @@ public class CoreService extends Service
 					try
 					{
 						Intent service2 = new Intent();
-						service2.setClassName("com.dooioo.mycontact", "com.dooioo.service.StartService");
+						service2.setClassName("com.dooioo.mycontact",
+								"com.dooioo.service.StartService");
 						context.startService(service2);
 					}
 					catch (Exception e)
@@ -185,16 +176,13 @@ public class CoreService extends Service
 						.getAction()))
 				{
 					Logger.e(TAG, "--> normal mobile phone outgoing call");
-
 				}
 				else if (action_new_out_call.equals(intent.getAction()))
 				{
 					// customization mobile phone
 					Logger.e(TAG,
 							"--> customization mobile phone outgoing call");
-
 				}
-
 			}
 		};
 
@@ -205,10 +193,6 @@ public class CoreService extends Service
 		intentFilter.addAction(Intent.ACTION_NEW_OUTGOING_CALL);
 		intentFilter.addAction(action_new_out_call);
 		registerReceiver(mReceiver, intentFilter);
-
-		inflater = LayoutInflater.from(getApplicationContext());
-		mWindowManager = (WindowManager) getApplicationContext()
-				.getSystemService(Context.WINDOW_SERVICE);
 
 		TelephonyManager tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
 		tm.listen(new MyPhoneStatusListener(),
@@ -264,9 +248,6 @@ public class CoreService extends Service
 							"--> decryption incomingNumber = "
 									+ Algorithm.decryption(incomingNumber));
 
-					// Intent intent = new Intent();
-					// intent.setAction("android.intent.action.DOOIOO_CALL_STATE_RINGING");
-					// sendBroadcast(intent);
 					Employee employee = null;
 					if (DeviceInfoUtil.isSpecial())
 					{

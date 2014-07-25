@@ -48,7 +48,7 @@ public class MainActivity extends Activity
 		setContentView(R.layout.activity_main);
 
 		// 获取token
-		getToken();
+//		getToken();
 		
 		//测试获取员工信息外网
 //		testGetAllEmployeesRelease();
