@@ -121,6 +121,7 @@ public class MyApplication extends Application
 					{
 						Logger.e(TAG, "---> get_token_success.");
 						CommonUtil.setAccessToken(context, resp.access_token);
+						Logger.e(TAG, "---> Token = " + CommonUtil.getAccessToken(context));
 					}
 					else
 					{
