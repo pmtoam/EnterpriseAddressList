@@ -10,7 +10,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -49,7 +48,7 @@ public class MainActivity extends Activity
 		setContentView(R.layout.activity_main);
 
 		// 测试拷贝数据库文件到SD卡根目录
-//		testCopyDBToSD();
+		// testCopyDBToSD();
 
 		// 获取token
 		// getToken();
@@ -90,7 +89,8 @@ public class MainActivity extends Activity
 
 	private void testCopyDBToSD()
 	{
-		String oldPath = "data/data/com.dooioo.enterprise.address.list/databases/" + DBHelper.DATABASE_NAME;
+		String oldPath = "data/data/com.dooioo.enterprise.address.list/databases/"
+				+ DBHelper.DATABASE_NAME;
 		String newPath = Environment.getExternalStorageDirectory()
 				+ File.separator + DBHelper.DATABASE_NAME;
 		FileUtil.copyFile(oldPath, newPath);
@@ -264,12 +264,6 @@ public class MainActivity extends Activity
 								long last = System.currentTimeMillis();
 								for (int i = 0; i < resp.emps.size(); i++)
 								{
-									// Logger.e(TAG, "-->" + i +
-									// resp.emps.get(i).userNameCn
-									// + "  " + resp.emps.get(i).mobilePhone
-									// + "  " + resp.emps.get(i).orgName
-									// + "  " + resp.emps.get(i).userTitle);
-
 									EmployeeDBTool employeeDBTool = new EmployeeDBTool(
 											context);
 									employeeDBTool
