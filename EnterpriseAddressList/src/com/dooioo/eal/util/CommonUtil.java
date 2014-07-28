@@ -2,6 +2,7 @@ package com.dooioo.eal.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.widget.Toast;
 
 public class CommonUtil
 {
@@ -124,6 +125,38 @@ public class CommonUtil
 	}
 
 	// ---------------------------------------------------------------------------
+	public static void setDooiooAllResult(Context context, String value)
+	{
+		SharedPreferences sp = context.getSharedPreferences(
+				CommonUtil.PREFS_CACHE_ONE, 0);
+		SharedPreferences.Editor editor = sp.edit();
+		editor.putString("dooiooAllResult", value);
+		editor.commit();
+	}
+
+	public static String getDooiooAllResult(Context context)
+	{
+		SharedPreferences sp = context.getSharedPreferences(
+				CommonUtil.PREFS_CACHE_ONE, 0);
+		return sp.getString("dooiooAllResult", "");
+	}
+
+	// ---------------------------------------------------------------------------
+	public static void setGetDooiooAllTime(long time, Context context)
+	{
+		SharedPreferences sp = context.getSharedPreferences(PREFS_CACHE_ONE, 0);
+		SharedPreferences.Editor editor = sp.edit();
+		editor.putLong("getDooiooAllTime", time);
+		editor.commit();
+	}
+
+	public static long getGetDooiooAllTime(Context context)
+	{
+		SharedPreferences sp = context.getSharedPreferences(PREFS_CACHE_ONE, 0);
+		return sp.getLong("getDooiooAllTime", 0);
+	}
+
+	// ---------------------------------------------------------------------------
 	/**
 	 * 
 	 * @param tag
@@ -187,5 +220,10 @@ public class CommonUtil
 			result = 8;
 		}
 		return result;
+	}
+
+	public static void showToast(Context context, String text)
+	{
+		Toast.makeText(context, text, Toast.LENGTH_LONG).show();
 	}
 }

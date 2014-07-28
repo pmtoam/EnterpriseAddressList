@@ -1,5 +1,8 @@
 package com.dooioo.eal.dao.tools;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sqlcipher.database.SQLiteDatabase;
 import android.content.ContentValues;
 import android.content.Context;
@@ -70,6 +73,51 @@ public class EmployeeDBTool
 		{
 			dbHelper.close();
 		}
+	}
+
+	public List<Employee> queryEmployeeById(String id, boolean isBring)
+	{
+		List<Employee> employees = null;
+		SQLiteDatabase sqLiteDatabase = null;
+
+		if (isBring)
+		{
+			sqLiteDatabase = FileUtil.openDatabase(context);
+		}
+		else
+		{
+			DBHelper dbHelper = new DBHelper(context);
+			sqLiteDatabase = dbHelper.getReadableDatabase(DBHelper.SECRET_KEY);
+		}
+
+		Cursor c = sqLiteDatabase.query(DBHelper.TABLE_EMP, null, "orgId = ?",
+				new String[]
+				{ id }, null, null, null);
+		Logger.e(TAG, "--> c.getCount() = " + c.getCount());
+		if (c != null)
+		{
+			employees = new ArrayList<Employee>();
+
+			while (c.moveToNext())
+			{
+				Employee employee = new Employee();
+				employee.userNameCn = c.getString(1);
+				employee.mobilePhone = c.getString(2);
+				employee.orgName = c.getString(3);
+				employee.userTitle = c.getString(4);
+				
+				employees.add(employee);
+			}
+		}
+		c.close();
+		sqLiteDatabase.close();
+
+		if (c.getCount() == 0 && !isBring)
+		{
+			Logger.e(TAG, "c.getCount() == 0 && !isBring");
+			return queryEmployeeById(id, true);
+		}
+		return employees;
 	}
 
 	public Employee queryEmployee(Context context, String incomingNumber,

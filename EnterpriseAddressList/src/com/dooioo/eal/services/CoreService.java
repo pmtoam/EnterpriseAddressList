@@ -265,18 +265,18 @@ public class CoreService extends Service
 					{
 						addView(employee);
 					}
-					else
-					{
-						if (DeviceInfoUtil.isSpecial())
-						{
-							addView(new Employee("", "",
-									Algorithm.decryption(incomingNumber), ""));
-						}
-						else
-						{
-							addView(new Employee("", "", incomingNumber, ""));
-						}
-					}
+					// else
+					// {
+					// if (DeviceInfoUtil.isSpecial())
+					// {
+					// addView(new Employee("", "",
+					// Algorithm.decryption(incomingNumber), ""));
+					// }
+					// else
+					// {
+					// addView(new Employee("", "", incomingNumber, ""));
+					// }
+					// }
 
 					break;
 				case TelephonyManager.CALL_STATE_OFFHOOK:

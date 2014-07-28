@@ -3,11 +3,24 @@ package com.dooioo.eal.activity;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import net.sqlcipher.database.SQLiteDatabase;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,10 +29,14 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
+import android.widget.ListView;
 
+import com.dooioo.eal.adapter.DooiooAllAdapter;
 import com.dooioo.eal.dao.DBHelper;
 import com.dooioo.eal.dao.tools.EmployeeDBTool;
+import com.dooioo.eal.entity.DooiooAll;
 import com.dooioo.eal.entity.Employee;
 import com.dooioo.eal.entity.EmployeeGet;
 import com.dooioo.eal.network.DAsyncTaskRequest;
@@ -31,7 +48,9 @@ import com.dooioo.eal.services.CoreService;
 import com.dooioo.eal.util.CommonUtil;
 import com.dooioo.eal.util.FileUtil;
 import com.dooioo.eal.util.Logger;
+import com.dooioo.eal.util.NetWorkUtil;
 import com.dooioo.enterprise.address.list.R;
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class MainActivity extends Activity
@@ -41,11 +60,15 @@ public class MainActivity extends Activity
 	private Context context = this;
 	private Activity activity = this;
 
+	private ListView lv_results;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		lv_results = (ListView) findViewById(R.id.lv_results);
 
 		// 测试拷贝数据库文件到SD卡根目录
 		// testCopyDBToSD();
@@ -57,7 +80,7 @@ public class MainActivity extends Activity
 		// testGetAllEmployeesRelease();
 
 		// 测试组织架构数据解析
-		// testDooiooAll();
+		testDooiooAll();
 
 		// 测试网络状态
 		// testNetworkState();
@@ -101,32 +124,177 @@ public class MainActivity extends Activity
 		MyApplication.getToken();
 	}
 
+	private final String url = "http://dui.dooioo.com/public/json/dooioo/dooiooAll.js";
+	private ProgressDialog dialog;
+
 	private void testDooiooAll()
 	{
-		String url = "http://dui.dooioo.com/public/json/dooioo/dooiooAll.js";
-		NetWorkConn.downloadFile(url, context,
-				NetWorkConn.DOWN_FILE_NAME_DOOIOO_ALL);
+		if (!TextUtils.isEmpty(CommonUtil.getDooiooAllResult(context)))
+		{
+			initView(CommonUtil.getDooiooAllResult(context));
+		}
+
+		long cycleTime = 1000 * 10;
+		if (System.currentTimeMillis()
+				- CommonUtil.getGetDooiooAllTime(context) < cycleTime)
+		{
+			Logger.e(TAG, "还没到刷新周期,cycleTime = " + cycleTime);
+			return;
+		}
+
+		dialog = new ProgressDialog(activity);
+		dialog.setMessage("loading...");
+		dialog.setCanceledOnTouchOutside(false);
+		dialog.show();
+		new Thread()
+		{
+			public void run()
+			{
+				HttpClient client = new DefaultHttpClient();
+				HttpGet get = new HttpGet(url);
+				HttpResponse response;
+				try
+				{
+					response = client.execute(get);
+					HttpEntity entity = response.getEntity();
+					InputStream is = entity.getContent();
+					FileOutputStream fileOutputStream = null;
+
+					if (is != null)
+					{
+						File file = new File(
+								Environment.getExternalStorageDirectory(),
+								NetWorkConn.DOWN_FILE_NAME_DOOIOO_ALL);
+						fileOutputStream = new FileOutputStream(file);
+						byte[] buf = new byte[1024];
+						int ch = -1;
+						int count = 0;
+						while ((ch = is.read(buf)) != -1)
+						{
+							fileOutputStream.write(buf, 0, ch);
+							count += ch;
+							if (true)
+								interrupt();
+							Logger.e(TAG, "--> downloading count = " + count);
+						}
+					}
+					fileOutputStream.flush();
+					if (fileOutputStream != null)
+						fileOutputStream.close();
+
+					Logger.e(TAG, "--> download success.");
+
+					handler.post(new Runnable()
+					{
+
+						@Override
+						public void run()
+						{
+							String result = readData();
+							if (!TextUtils.isEmpty(result))
+							{
+								CommonUtil.setDooiooAllResult(context, result);
+								CommonUtil.setGetDooiooAllTime(
+										System.currentTimeMillis(), context);
+								initView(result);
+							}
+						}
+					});
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					String error = "";
+					if (!NetWorkUtil.isConnected(context))
+					{
+						error = "网络未连接";
+					}
+
+					final String _error = error;
+					handler.post(new Runnable()
+					{
+
+						@Override
+						public void run()
+						{
+							CommonUtil.showToast(context, _error);
+							if (!TextUtils.isEmpty(CommonUtil
+									.getDooiooAllResult(context)))
+							{
+								initView(CommonUtil.getDooiooAllResult(context));
+							}
+						}
+					});
+				}
+				finally
+				{
+					handler.post(new Runnable()
+					{
+
+						@Override
+						public void run()
+						{
+							dialog.dismiss();
+						}
+					});
+				}
+			}
+		}.start();
+	}
+
+	private String readData()
+	{
 		File file = new File(Environment.getExternalStorageDirectory(),
 				NetWorkConn.DOWN_FILE_NAME_DOOIOO_ALL);
 		InputStream inputStream = null;
-		try
-		{
-			inputStream = new BufferedInputStream(new FileInputStream(file));
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
 		String result = null;
 		try
 		{
+			inputStream = new BufferedInputStream(new FileInputStream(file));
 			result = DHttpConnUtil.readInputToString(inputStream);
+			result = result.substring(result.indexOf("{"), result.length());
+			result = result.replaceAll("\'", "\"");
+			Logger.e(TAG, "result = " + result);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-		Logger.e(TAG, "--> result = " + result);
+		return result;
+	}
+
+	private void initView(final String result)
+	{
+		new Thread()
+		{
+			public void run()
+			{
+
+				Type type = new TypeToken<DooiooAll>()
+				{
+				}.getType();
+				Gson gson = new Gson();
+				List<DooiooAll> dooiooAlls = new ArrayList<DooiooAll>();
+				DooiooAll dooiooAll = gson.fromJson(result, type);
+				dooiooAlls.add(dooiooAll);
+
+				if (dooiooAlls.size() > 0)
+				{
+					final List<DooiooAll> _dooiooAlls = dooiooAlls;
+					handler.post(new Runnable()
+					{
+
+						@Override
+						public void run()
+						{
+							lv_results.setAdapter(new DooiooAllAdapter(context,
+									_dooiooAlls));
+						}
+					});
+				}
+			};
+		}.start();
+
 	}
 
 	private void testNetworkState()
@@ -212,6 +380,7 @@ public class MainActivity extends Activity
 
 	private void testGetAllEmployeesRelease()
 	{
+		MyApplication.getToken();
 
 		DRequest<EmployeeGet> dRequest = new DRequest<EmployeeGet>()
 		{
@@ -234,14 +403,15 @@ public class MainActivity extends Activity
 		}.getType();
 		// Map<String, String> params = new HashMap<String, String>();
 		// params.put("empNo", "102804");
-		// Map<String, String> params = new HashMap<String, String>();
-		// params.put("phoneNumber", number);
-		// params.put("empNo", GlobalAPP.getEmployeeNum());
 
 		Logger.e(TAG, "---> " + CommonUtil.getAccessToken(context));
+
+		Map<String, String> tokenConfigMap = new HashMap<String, String>();
+		tokenConfigMap.put("Authorization",
+				"Bearer " + CommonUtil.getAccessToken(context));
+		tokenConfigMap.put("Accept", "application/json; charset=utf-8");
 		new DAsyncTaskRequest<EmployeeGet>(activity, dRequest, type, true, null)
-				.execute(new DHttpRequest("GET", url,
-						MyApplication.tokenConfigMap, null));
+				.execute(new DHttpRequest("GET", url, tokenConfigMap, null));
 	}
 
 	private void testGetAllEmployees()

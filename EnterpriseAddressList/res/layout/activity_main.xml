@@ -14,8 +14,10 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:background="#00000000"
-            android:text="企业通讯录  v1.0\n\n本应用支持来电显示德佑员工基础信息\n\n后续将支持：组织架构查询、员工搜索\n\n\n按返回键退出即可"
+            android:text="企业通讯录  v1.0\n\n本应用支持来电显示德佑员工基础信息、组织架构查询、员工搜索"
             android:textColor="#959595" />
 
         <EditText
@@ -40,8 +42,7 @@
         <ListView
             android:id="@+id/lv_results"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/et_keywords" />
+            android:layout_height="match_parent" />
     </RelativeLayout>
 
 </RelativeLayout>

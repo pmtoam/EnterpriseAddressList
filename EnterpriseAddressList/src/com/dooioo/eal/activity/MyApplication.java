@@ -40,7 +40,6 @@ public class MyApplication extends Application
 	private static String Imei, Imsi;
 
 	public static Map<String, String> requestMap = new HashMap<String, String>();
-	public static Map<String, String> tokenConfigMap = new HashMap<String, String>();
 
 	@Override
 	public void onCreate()
@@ -60,9 +59,6 @@ public class MyApplication extends Application
 		requestMap.put("appId", "APP-AddrBook");
 		requestMap.put("token", CommonUtil.getAccessToken(context));
 
-		tokenConfigMap.put("Authorization",
-				"Bearer " + CommonUtil.getAccessToken(context));
-		tokenConfigMap.put("Accept", "application/json; charset=utf-8");
 	}
 
 	public static String getImei()
@@ -121,7 +117,10 @@ public class MyApplication extends Application
 					{
 						Logger.e(TAG, "---> get_token_success.");
 						CommonUtil.setAccessToken(context, resp.access_token);
-						Logger.e(TAG, "---> Token = " + CommonUtil.getAccessToken(context));
+						Logger.e(
+								TAG,
+								"---> Token = "
+										+ CommonUtil.getAccessToken(context));
 					}
 					else
 					{
