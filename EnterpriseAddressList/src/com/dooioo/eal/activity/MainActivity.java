@@ -80,7 +80,7 @@ public class MainActivity extends Activity
 		// testGetAllEmployeesRelease();
 
 		// 测试组织架构数据解析
-		testDooiooAll();
+//		testDooiooAll();
 
 		// 测试网络状态
 		// testNetworkState();

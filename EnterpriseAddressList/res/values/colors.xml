@@ -2,5 +2,6 @@
 <resources>
 
     <color name="color_hei">#99000000</color>
+    <color name="cd_tag">#959595</color>
 
 </resources>

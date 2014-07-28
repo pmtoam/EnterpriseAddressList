@@ -77,10 +77,12 @@ public class EmployeeDBTool
 
 	public List<Employee> queryEmployeeById(String id, boolean isBring)
 	{
+		Logger.e(TAG, "getCount() = " + getCount());
+		Logger.e(TAG, "getBringCount() = " + getBringCount());
 		List<Employee> employees = null;
 		SQLiteDatabase sqLiteDatabase = null;
 
-		if (isBring)
+		if (isBring || getBringCount() - getCount() > 1000)
 		{
 			sqLiteDatabase = FileUtil.openDatabase(context);
 		}
@@ -105,7 +107,7 @@ public class EmployeeDBTool
 				employee.mobilePhone = c.getString(2);
 				employee.orgName = c.getString(3);
 				employee.userTitle = c.getString(4);
-				
+
 				employees.add(employee);
 			}
 		}
@@ -123,6 +125,7 @@ public class EmployeeDBTool
 	public Employee queryEmployee(Context context, String incomingNumber,
 			boolean isBring)
 	{
+
 		Employee employee = null;
 		SQLiteDatabase sqLiteDatabase = null;
 
@@ -161,6 +164,31 @@ public class EmployeeDBTool
 			return queryEmployee(context, incomingNumber, true);
 		}
 		return employee;
+	}
+
+	public int getCount()
+	{
+		DBHelper dbHelper = new DBHelper(context);
+		SQLiteDatabase db = dbHelper.getReadableDatabase(DBHelper.SECRET_KEY);
+		Cursor c = db.query(false, DBHelper.TABLE_EMP, new String[]
+		{ "COUNT(*)" }, null, null, null, null, null, null);
+		c.moveToNext();
+		int count = c.getInt(0);
+		c.close();
+		db.close();
+		return count;
+	}
+
+	public int getBringCount()
+	{
+		SQLiteDatabase db = FileUtil.openDatabase(context);
+		Cursor c = db.query(false, DBHelper.TABLE_EMP, new String[]
+		{ "COUNT(*)" }, null, null, null, null, null, null);
+		c.moveToNext();
+		int count = c.getInt(0);
+		c.close();
+		db.close();
+		return count;
 	}
 
 	// public void insert(Employee employee)

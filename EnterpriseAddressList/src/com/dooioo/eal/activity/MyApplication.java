@@ -6,6 +6,7 @@ import java.util.Map;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.view.WindowManager;
@@ -171,4 +172,19 @@ public class MyApplication extends Application
 
 	}
 
+	public static void setActualHeight(int value)
+	{
+		SharedPreferences sp = context
+				.getSharedPreferences("sp_screen_info", 0);
+		SharedPreferences.Editor editor = sp.edit();
+		editor.putInt("height", value);
+		editor.commit();
+	}
+
+	public static int getActualHeight()
+	{
+		SharedPreferences sp = context
+				.getSharedPreferences("sp_screen_info", 0);
+		return sp.getInt("height", 0);
+	}
 }

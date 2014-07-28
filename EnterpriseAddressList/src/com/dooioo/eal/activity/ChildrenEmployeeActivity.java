@@ -9,6 +9,7 @@ import android.widget.ListView;
 
 import com.dooioo.eal.adapter.DooiooAllAdapter;
 import com.dooioo.eal.adapter.DooiooChildrenEmployeeAdapter;
+import com.dooioo.eal.adapter.NullAdapter;
 import com.dooioo.eal.dao.tools.EmployeeDBTool;
 import com.dooioo.eal.entity.DooiooAll;
 import com.dooioo.eal.entity.Employee;
@@ -56,8 +57,16 @@ public class ChildrenEmployeeActivity extends Activity
 		// {
 		// Logger.e(TAG, "" + employee.userNameCn);
 		// }
-		lv_results.setAdapter(new DooiooChildrenEmployeeAdapter(context,
-				employees));
+
+		if (employees.size() > 0)
+		{
+			lv_results.setAdapter(new DooiooChildrenEmployeeAdapter(context,
+					employees));
+		}
+		else
+		{
+			lv_results.setAdapter(new NullAdapter(context, "查询无数据", 0));
+		}
 
 	}
 
